@@ -1,3 +1,4 @@
+import "server-only";
 import { PrismaClient } from "@nexora/prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
 

@@ -50,9 +50,14 @@ export default function Home() {
               >
                 About
               </Link>
-              <Link href="/api/health">
+              <Link href="/login">
                 <Button variant="ghost" size="sm">
-                  Health Check
+                  Sign in
+                </Button>
+              </Link>
+              <Link href="/signup">
+                <Button size="sm">
+                  Get Started
                 </Button>
               </Link>
             </nav>
@@ -79,15 +84,15 @@ export default function Home() {
                 intelligent knowledge with semantic search and RAG-powered chat.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="#features">
+                <Link href="/signup">
                   <Button size="lg" className="w-full sm:w-auto">
-                    Explore Features
+                    Get Started Free
                     <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
                   </Button>
                 </Link>
-                <Link href="/api/health">
+                <Link href="/login">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                    API Health
+                    Sign In
                   </Button>
                 </Link>
               </div>

@@ -49,7 +49,8 @@ export function handleError(error: unknown): AppError {
   }
 
   if (error instanceof Error) {
-    return new AppError(error.message, "INTERNAL_ERROR", 500);
+    console.error("Unhandled error:", error);
+    return new AppError("Internal server error", "INTERNAL_ERROR", 500);
   }
 
   return new AppError("An unknown error occurred", "UNKNOWN_ERROR", 500);
