@@ -21,7 +21,8 @@ const requiredServerEnvVars = [
   "AUTH_SECRET",
 ] as const;
 
-const optionalServerEnvVars = [
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _optionalServerEnvVars = [
   "LLM_API_KEY",
   "EMBEDDING_API_KEY",
   "STORAGE_ENDPOINT",
@@ -30,7 +31,8 @@ const optionalServerEnvVars = [
   "STORAGE_BUCKET",
 ] as const;
 
-const clientEnvVars = [
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _clientEnvVars = [
   "NEXT_PUBLIC_APP_URL",
   "NEXT_PUBLIC_APP_NAME",
 ] as const;
