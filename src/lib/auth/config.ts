@@ -87,12 +87,15 @@ export const authConfig: NextAuthConfig = {
         return token;
       }
       if (token.id) {
-        const issuedAt = token.iat ? token.iat * 1000 : Number.POSITIVE_INFINITY;
+        const issuedAtSeconds = token.iat ?? 0;
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
           select: { passwordChangedAt: true },
         });
-        if (dbUser?.passwordChangedAt && new Date(dbUser.passwordChangedAt).getTime() > issuedAt) {
+        const changedAtSeconds = dbUser?.passwordChangedAt
+          ? Math.floor(new Date(dbUser.passwordChangedAt).getTime() / 1000)
+          : 0;
+        if (changedAtSeconds > issuedAtSeconds) {
           return {};
         }
       }

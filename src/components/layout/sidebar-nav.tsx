@@ -22,11 +22,11 @@ type NavItem = {
 
 const primaryNav: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Documents", href: "/documents", icon: FileText },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 const placeholderNav: NavItem[] = [
-  { name: "Documents", icon: FileText, comingSoon: true },
   { name: "AI Assistant", icon: Bot, comingSoon: true },
   { name: "Conversations", icon: MessageSquare, comingSoon: true },
   { name: "Analytics", icon: BarChart3, comingSoon: true },

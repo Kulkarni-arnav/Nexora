@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { getWorkspaceById, updateWorkspace, deleteWorkspace, getWorkspaceMembers } from "@/server/repositories/workspace";
 import { requireWorkspaceMember, requireWorkspaceRole } from "@/server/auth";
 import { isAppError } from "@/server/validation/errors";
+import { getStorage } from "@/server/storage";
 import { z } from "zod";
 
 const updateWorkspaceSchema = z.object({
@@ -137,6 +138,8 @@ export async function DELETE(
     await requireWorkspaceRole(id, ["OWNER"], session.user.id);
 
     await deleteWorkspace(id, session.user.id);
+
+    await getStorage().deletePrefix(`workspaces/${id}`);
 
     return NextResponse.json({ success: true });
   } catch (error) {

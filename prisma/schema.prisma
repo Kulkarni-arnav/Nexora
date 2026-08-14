@@ -117,6 +117,9 @@ model Document {
   fileSize      Int
   mimeType      String
   storagePath   String
+  contentPath   String?
+  metadata      Json?
+  errorMessage  String?
   status        DocumentStatus @default(PENDING)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -127,6 +130,7 @@ model Document {
 
   @@index([workspaceId])
   @@index([status])
+  @@index([workspaceId, status])
   @@map("documents")
 }
 

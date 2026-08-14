@@ -62,7 +62,7 @@ const roadmap = [
     phase: "Phase 3",
     icon: Upload,
     title: "Upload your first document",
-    description: "Ingest PDFs, DOCX, and text files into your knowledge base.",
+    description: "Ingest PDFs, TXT, and Markdown files into your knowledge base.",
   },
   {
     phase: "Phase 4",
@@ -218,16 +218,15 @@ export default async function DashboardPage() {
                 </div>
                 <h3 className="font-medium text-foreground">No documents yet</h3>
                 <p className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground">
-                  Upload PDFs, DOCX, and text files to start building your searchable
+                  Upload PDFs, TXT, and Markdown files to start building your searchable
                   knowledge base.
                 </p>
-                <Button variant="outline" disabled className="mt-5">
-                  <Upload className="h-4 w-4" />
-                  Upload a document
-                </Button>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Document ingestion arrives in Phase 3.
-                </p>
+                <Link href="/documents" className="mt-5 inline-block">
+                  <Button variant="outline">
+                    <Upload className="h-4 w-4" />
+                    Upload a document
+                  </Button>
+                </Link>
               </div>
             ) : (
               <ul className="space-y-1">
