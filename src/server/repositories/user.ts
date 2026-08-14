@@ -22,6 +22,7 @@ export async function createUser(data: {
       name: data.name.trim(),
       passwordHash,
       emailVerified: new Date(),
+      passwordChangedAt: new Date(),
     },
     select: {
       id: true,
@@ -86,7 +87,7 @@ export async function updatePassword(userId: string, newPassword: string) {
   const passwordHash = await bcrypt.hash(newPassword, 12);
   return prisma.user.update({
     where: { id: userId },
-    data: { passwordHash },
+    data: { passwordHash, passwordChangedAt: new Date() },
   });
 }
 

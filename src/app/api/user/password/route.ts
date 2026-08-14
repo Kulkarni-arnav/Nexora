@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { verifyPassword, updatePassword } from "@/server/repositories/user";
-import { prisma } from "@/server/db/client";
 import { AppError, isAppError } from "@/server/validation/errors";
 import { checkRateLimit } from "@/server/services/rate-limit";
 import { z } from "zod";
@@ -42,10 +41,6 @@ export async function POST(request: NextRequest) {
     }
 
     await updatePassword(session.user.id, validated.newPassword);
-
-    await prisma.session.deleteMany({
-      where: { userId: session.user.id },
-    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

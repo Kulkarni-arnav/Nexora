@@ -4,6 +4,7 @@ import { getCurrentWorkspaceId, getUserWorkspaces } from "@/server/auth";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { Toaster } from "@/components/ui/toaster";
+import type { UserNav, WorkspaceInfo, WorkspaceNavItem } from "@/components/layout/types";
 
 export default async function AppLayout({
   children,
@@ -15,26 +16,43 @@ export default async function AppLayout({
     redirect("/login");
   }
 
+  const userId = session.user.id;
   const workspaceId = await getCurrentWorkspaceId();
-  const memberships = await getUserWorkspaces(session.user.id);
+  const memberships = await getUserWorkspaces(userId);
 
-  const currentWorkspace = workspaceId
-    ? memberships.find((m) => m.workspace.id === workspaceId)?.workspace ?? null
-    : memberships[0]?.workspace ?? null;
+  const workspaces: WorkspaceNavItem[] = memberships.map((m) => ({
+    id: m.workspace.id,
+    name: m.workspace.name,
+    slug: m.workspace.slug,
+    role: m.role,
+    isOwner: m.workspace.ownerId === userId,
+    memberCount: m.workspace._count.members,
+  }));
 
-  const user = {
-    id: session.user.id,
+  const current: WorkspaceInfo | null = workspaceId
+    ? workspaces.find((w) => w.id === workspaceId) ?? workspaces[0] ?? null
+    : workspaces[0] ?? null;
+
+  const user: UserNav = {
+    id: userId,
     name: session.user.name ?? null,
     email: session.user.email ?? "",
     image: session.user.image ?? null,
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <AppSidebar currentWorkspace={currentWorkspace} user={user} />
-      <div className="flex-1 lg:ml-64 flex flex-col min-w-0">
-        <AppHeader />
-        <main className="flex-1 p-6 lg:p-8">{children}</main>
+    <div className="min-h-screen bg-background">
+      <AppSidebar workspaces={workspaces} current={current} user={user} />
+      <div className="flex min-h-screen flex-col lg:pl-64">
+        <AppHeader
+          workspaceName={current?.name ?? null}
+          workspaces={workspaces}
+          current={current}
+          user={user}
+        />
+        <main className="w-full flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          {children}
+        </main>
       </div>
       <Toaster />
     </div>

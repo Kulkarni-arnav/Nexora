@@ -13,7 +13,7 @@ const LOGIN_RATE_LIMIT_WINDOW_SECONDS = 60;
 export const authConfig: NextAuthConfig = {
   adapter: PrismaAdapter(prisma),
   session: {
-    strategy: "database",
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
@@ -75,15 +75,26 @@ export const authConfig: NextAuthConfig = {
       }
       return true;
     },
-    async session({ session, user }) {
+    async session({ session, token }) {
       if (session.user) {
-        session.user.id = user.id;
+        session.user.id = (token.sub as string) ?? (token.id as string);
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id as string;
+        return token;
+      }
+      if (token.id) {
+        const issuedAt = token.iat ? token.iat * 1000 : Number.POSITIVE_INFINITY;
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { passwordChangedAt: true },
+        });
+        if (dbUser?.passwordChangedAt && new Date(dbUser.passwordChangedAt).getTime() > issuedAt) {
+          return {};
+        }
       }
       return token;
     },

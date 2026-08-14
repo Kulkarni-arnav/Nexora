@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Brain } from "lucide-react";
+import { Brain, Eye, EyeOff, Loader2, MessageSquare, Search, ShieldCheck } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { signIn } from "next-auth/react";
 
@@ -32,11 +32,53 @@ const loginSchema = z.object({
 type SignupForm = z.infer<typeof signupSchema>;
 type LoginForm = z.infer<typeof loginSchema>;
 
+const authFeatures = [
+  {
+    icon: Search,
+    title: "Semantic search",
+    description: "Find answers across all of your documents.",
+  },
+  {
+    icon: MessageSquare,
+    title: "Grounded AI chat",
+    description: "Get cited answers based on your own knowledge.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Private workspaces",
+    description: "Role-based access keeps your data secure.",
+  },
+];
+
+function PasswordToggle({ shown, onClick }: { shown: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={shown ? "Hide password" : "Show password"}
+      className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {shown ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+    </button>
+  );
+}
+
+function BrandMark() {
+  return (
+    <div className="flex items-center gap-2.5">
+      <Brain className="h-8 w-8 text-primary" />
+      <span className="text-xl font-semibold tracking-tight">NEXORA AI</span>
+    </div>
+  );
+}
+
 export function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/onboarding";
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const {
     register,
@@ -70,6 +112,18 @@ export function SignupForm() {
       }
 
       toast({ title: "Account created successfully", variant: "success" });
+
+      const signInResult = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        router.push("/login");
+        return;
+      }
+
       router.push(callbackUrl);
       router.refresh();
     } catch (error) {
@@ -108,23 +162,33 @@ export function SignupForm() {
           />
           <Input
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             {...register("password")}
             error={errors.password?.message}
             disabled={isLoading}
             autoComplete="new-password"
+            rightElement={
+              <PasswordToggle shown={showPassword} onClick={() => setShowPassword((v) => !v)} />
+            }
           />
+          <p className="-mt-2 text-xs text-muted-foreground">
+            Use at least 8 characters.
+          </p>
           <Input
             label="Confirm Password"
-            type="password"
+            type={showConfirm ? "text" : "password"}
             placeholder="••••••••"
             {...register("confirmPassword")}
             error={errors.confirmPassword?.message}
             disabled={isLoading}
             autoComplete="new-password"
+            rightElement={
+              <PasswordToggle shown={showConfirm} onClick={() => setShowConfirm((v) => !v)} />
+            }
           />
           <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             {isLoading ? "Creating account..." : "Create account"}
           </Button>
         </form>
@@ -147,6 +211,7 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -200,27 +265,20 @@ export function LoginForm() {
             disabled={isLoading}
             autoComplete="email"
           />
-          <div className="relative">
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              {...register("password")}
-              error={errors.password?.message}
-              disabled={isLoading}
-              autoComplete="current-password"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" className="rounded border-input" />
-              Remember me
-            </label>
-            <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-              Forgot password?
-            </Link>
-          </div>
+          <Input
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            placeholder="••••••••"
+            {...register("password")}
+            error={errors.password?.message}
+            disabled={isLoading}
+            autoComplete="current-password"
+            rightElement={
+              <PasswordToggle shown={showPassword} onClick={() => setShowPassword((v) => !v)} />
+            }
+          />
           <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             {isLoading ? "Signing in..." : "Sign in"}
           </Button>
         </form>
@@ -238,24 +296,49 @@ export function LoginForm() {
   );
 }
 
-export function AuthLayout({ children, title, subtitle }: { children: React.ReactNode; title?: string; subtitle?: string }) {
+export function AuthLayout({
+  children,
+  title,
+  subtitle,
+}: {
+  children: React.ReactNode;
+  title?: string;
+  subtitle?: string;
+}) {
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/5 via-background to-primary/5 items-center justify-center p-12 border-r border-border">
-        <div className="max-w-lg">
-          <div className="flex items-center gap-3 mb-8">
-            <Brain className="h-10 w-10 text-primary" />
-            <span className="text-2xl font-bold">NEXORA AI</span>
-          </div>
-          <h1 className="text-4xl font-bold tracking-tight text-foreground mb-4">
+    <div className="flex min-h-screen flex-col lg:flex-row">
+      <aside className="hidden flex-col justify-between border-r border-border bg-muted/40 p-10 lg:flex lg:w-[45%] xl:p-14">
+        <BrandMark />
+        <div className="max-w-md">
+          <h1 className="text-3xl font-bold leading-tight tracking-tight text-foreground xl:text-4xl">
             {title || "Your knowledge. Searchable, understandable, intelligent."}
           </h1>
-          <p className="text-lg text-muted-foreground leading-relaxed">
-            {subtitle || "Transform your documents into searchable, intelligent knowledge with semantic search and RAG-powered chat."}
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+            {subtitle ||
+              "Transform your documents into searchable, intelligent knowledge with semantic search and RAG-powered chat."}
           </p>
+          <ul className="mt-10 space-y-5">
+            {authFeatures.map((feature) => (
+              <li key={feature.title} className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <feature.icon className="h-4 w-4" />
+                </span>
+                <div>
+                  <p className="font-medium">{feature.title}</p>
+                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-      <div className="flex-1 flex items-center justify-center p-8">
+        <p className="text-xs text-muted-foreground">
+          © {new Date().getFullYear()} NEXORA AI
+        </p>
+      </aside>
+      <div className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:px-8">
+        <div className="mb-8 lg:hidden">
+          <BrandMark />
+        </div>
         <div className="w-full max-w-md">{children}</div>
       </div>
     </div>
