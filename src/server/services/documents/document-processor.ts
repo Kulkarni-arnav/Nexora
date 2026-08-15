@@ -9,6 +9,7 @@ import {
 } from "@/server/repositories/document";
 import { extractText } from "./extractors";
 import { classifyDocumentFile } from "./config";
+import { indexDocument } from "./indexing";
 
 function originalKey(workspaceId: string, documentId: string): string {
   return `workspaces/${workspaceId}/documents/${documentId}/file`;
@@ -67,6 +68,13 @@ export async function processDocument(
       contentKey(workspaceId, documentId),
       result.metadata
     );
+
+    const indexResult = await indexDocument(workspaceId, documentId);
+
+    if (!indexResult.indexed) {
+      await failDocument(workspaceId, documentId, indexResult.error || "Indexing failed");
+      return assertDocument(workspaceId, documentId);
+    }
 
     return assertDocument(workspaceId, documentId);
   } catch (error) {

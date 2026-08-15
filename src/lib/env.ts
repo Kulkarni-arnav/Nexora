@@ -4,8 +4,7 @@ interface EnvConfig {
   DATABASE_URL: string;
   REDIS_URL: string;
   AUTH_SECRET: string;
-  LLM_API_KEY: string;
-  EMBEDDING_API_KEY: string;
+  GEMINI_API_KEY: string;
   STORAGE_ENDPOINT: string;
   STORAGE_ACCESS_KEY: string;
   STORAGE_SECRET_KEY: string;
@@ -23,8 +22,7 @@ const requiredServerEnvVars = [
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _optionalServerEnvVars = [
-  "LLM_API_KEY",
-  "EMBEDDING_API_KEY",
+  "GEMINI_API_KEY",
   "STORAGE_ENDPOINT",
   "STORAGE_ACCESS_KEY",
   "STORAGE_SECRET_KEY",
@@ -56,8 +54,7 @@ function validateEnv(): EnvConfig {
     DATABASE_URL: process.env.DATABASE_URL!,
     REDIS_URL: process.env.REDIS_URL!,
     AUTH_SECRET: process.env.AUTH_SECRET!,
-    LLM_API_KEY: process.env.LLM_API_KEY ?? "",
-    EMBEDDING_API_KEY: process.env.EMBEDDING_API_KEY ?? "",
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY ?? "",
     STORAGE_ENDPOINT: process.env.STORAGE_ENDPOINT ?? "",
     STORAGE_ACCESS_KEY: process.env.STORAGE_ACCESS_KEY ?? "",
     STORAGE_SECRET_KEY: process.env.STORAGE_SECRET_KEY ?? "",
@@ -75,8 +72,7 @@ export type ServerEnv = Pick<
   | "DATABASE_URL"
   | "REDIS_URL"
   | "AUTH_SECRET"
-  | "LLM_API_KEY"
-  | "EMBEDDING_API_KEY"
+  | "GEMINI_API_KEY"
   | "STORAGE_ENDPOINT"
   | "STORAGE_ACCESS_KEY"
   | "STORAGE_SECRET_KEY"

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { requireWorkspaceMember, requireWorkspaceRole } from "@/server/auth";
 import { isAppError } from "@/server/validation/errors";
+import { checkRateLimit } from "@/server/services/rate-limit";
 import { listDocuments, serializeDocument, uploadDocument } from "@/server/services/documents/document-service";
 import { MAX_DOCUMENT_SIZE_BYTES } from "@/server/services/documents/config";
 import { z } from "zod";
@@ -57,6 +58,15 @@ export async function POST(
     }
 
     await requireWorkspaceRole(workspaceId, ["OWNER", "ADMIN", "MEMBER"], session.user.id);
+
+    const rateLimitKey = `user:${session.user.id}:workspace:${workspaceId}`;
+    const rateLimitResult = await checkRateLimit(rateLimitKey, 10, 60);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: "Rate limit exceeded. Please try again later." },
+        { status: 429 }
+      );
+    }
 
     const contentLength = Number(request.headers.get("content-length") ?? 0);
     if (contentLength > MAX_DOCUMENT_SIZE_BYTES + MULTIPART_OVERHEAD_BYTES) {

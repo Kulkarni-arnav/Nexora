@@ -93,8 +93,12 @@ export async function deleteDocument(workspaceId: string, documentId: string) {
 
 export async function retryDocument(workspaceId: string, documentId: string) {
   const document = await assertDocument(workspaceId, documentId);
-  if (document.status !== "FAILED") {
-    throw new AppError("Only failed documents can be retried", "INVALID_STATUS", 400);
+  if (document.status !== "FAILED" && document.indexedAt) {
+    throw new AppError(
+      "Only failed or unindexed documents can be retried",
+      "INVALID_STATUS",
+      400
+    );
   }
   return processDocument(workspaceId, documentId);
 }
@@ -110,6 +114,7 @@ export function serializeDocument(document: {
   status: DocumentStatus;
   errorMessage: string | null;
   metadata: unknown;
+  indexedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -124,6 +129,7 @@ export function serializeDocument(document: {
     status: document.status,
     errorMessage: document.errorMessage,
     metadata: document.metadata,
+    indexedAt: document.indexedAt,
     createdAt: document.createdAt,
     updatedAt: document.updatedAt,
   };

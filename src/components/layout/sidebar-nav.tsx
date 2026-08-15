@@ -10,6 +10,7 @@ import {
   Bot,
   MessageSquare,
   BarChart3,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ type NavItem = {
 const primaryNav: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Documents", href: "/documents", icon: FileText },
+  { name: "Search", href: "/search", icon: Search },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 

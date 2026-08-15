@@ -49,6 +49,9 @@ docker-compose.override.yml
 *.sql
 !prisma/migrations/**/*.sql
 
+# local storage (Phase 3+)
+/storage/
+
 # IDE
 .idea/
 .vscode/

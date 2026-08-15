@@ -96,8 +96,7 @@ cp .env.example .env
 | `DATABASE_URL` | PostgreSQL connection string | Yes |
 | `REDIS_URL` | Redis connection string | Yes |
 | `AUTH_SECRET` | Secret for authentication (Phase 2) | Yes |
-| `LLM_API_KEY` | LLM provider API key (Phase 3+) | No |
-| `EMBEDDING_API_KEY` | Embedding provider API key (Phase 3+) | No |
+| `GEMINI_API_KEY` | Gemini API key for embeddings and LLM (Phase 4+) | No |
 | `STORAGE_ENDPOINT` | Object storage endpoint (Phase 3+) | No |
 | `STORAGE_ACCESS_KEY` | Object storage access key (Phase 3+) | No |
 | `STORAGE_SECRET_KEY` | Object storage secret key (Phase 3+) | No |
@@ -245,9 +244,9 @@ The following features are planned for future phases:
 - [ ] Document upload (multipart/form-data)
 - [ ] Object storage integration (S3-compatible)
 - [ ] Text extraction (PDF, DOCX, TXT, MD)
-- [ ] Document chunking strategies
-- [ ] Embedding generation (OpenAI, Cohere, local)
-- [ ] pgvector storage & indexing
+- [x] Document chunking strategies
+- [x] Embedding generation (Gemini gemini-embedding-001)
+- [x] pgvector storage & indexing
 
 ### Phase 4: RAG & AI Chat
 - [ ] Vector similarity search

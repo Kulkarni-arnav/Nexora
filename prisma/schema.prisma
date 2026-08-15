@@ -121,6 +121,7 @@ model Document {
   metadata      Json?
   errorMessage  String?
   status        DocumentStatus @default(PENDING)
+  indexedAt     DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
@@ -135,19 +136,21 @@ model Document {
 }
 
 model DocumentChunk {
-  id            String   @id @default(uuid())
-  documentId    String
-  content       String
-  chunkIndex    Int
-  tokenCount    Int
-  embedding     Unsupported("vector(1536)")?
-  metadata      Json?
-  createdAt     DateTime @default(now())
+  id               String   @id @default(uuid())
+  documentId       String
+  content          String
+  chunkIndex       Int
+  tokenCount       Int
+  embedding        Unsupported("vector(768)")?
+  embeddingVersion Int      @default(0)
+  metadata         Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  document      Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  document         Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
+  @@unique([documentId, chunkIndex])
   @@index([documentId])
-  @@index([chunkIndex])
   @@map("document_chunks")
 }
 

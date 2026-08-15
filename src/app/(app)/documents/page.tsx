@@ -53,6 +53,7 @@ export default async function DocumentsPage() {
       initialDocuments={documents.map((document) => ({
         ...serializeDocument(document),
         metadata: document.metadata as Record<string, number> | null,
+        indexedAt: document.indexedAt?.toISOString() ?? null,
         createdAt: document.createdAt.toISOString(),
         updatedAt: document.updatedAt.toISOString(),
       }))}

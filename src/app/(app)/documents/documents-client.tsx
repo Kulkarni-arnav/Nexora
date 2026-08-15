@@ -28,6 +28,7 @@ export type DocumentItem = {
   status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
   errorMessage: string | null;
   metadata: Record<string, number> | null;
+  indexedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -42,7 +43,7 @@ const roleLabels: Record<WorkspaceRole, string> = {
 const statusStyles: Record<DocumentItem["status"], { label: string; className: string }> = {
   PENDING: { label: "Pending", className: "bg-muted text-muted-foreground" },
   PROCESSING: { label: "Processing", className: "bg-primary/10 text-primary" },
-  COMPLETED: { label: "Indexed", className: "bg-green-500/10 text-green-700 dark:text-green-400" },
+  COMPLETED: { label: "Completed", className: "bg-green-500/10 text-green-700 dark:text-green-400" },
   FAILED: { label: "Failed", className: "bg-destructive/10 text-destructive" },
 };
 
@@ -203,7 +204,7 @@ export function DocumentsClient({
         throw new Error(result?.error || "Failed to retry document");
       }
       toast({
-        title: result.document?.status === "COMPLETED" ? "Document indexed" : "Retry finished",
+        title: result.document?.status === "COMPLETED" ? "Document processed" : "Retry finished",
         variant: "success",
       });
       setDocuments((current) =>
@@ -302,6 +303,11 @@ export function DocumentsClient({
                             {document.errorMessage}
                           </p>
                         )}
+                        {document.status === "COMPLETED" && !document.indexedAt && (
+                          <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
+                            Extracted but not yet searchable
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -332,6 +338,23 @@ export function DocumentsClient({
                             <RefreshCw className="h-3.5 w-3.5" />
                           )}
                           Retry
+                        </Button>
+                      )}
+
+                      {document.status === "COMPLETED" && !document.indexedAt && canManage && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRetry(document)}
+                          disabled={isPending}
+                          aria-label={`Retry indexing ${document.title}`}
+                        >
+                          {isPending ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <RefreshCw className="h-3.5 w-3.5" />
+                          )}
+                          Retry indexing
                         </Button>
                       )}
 

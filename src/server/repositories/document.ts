@@ -26,6 +26,7 @@ export const documentSelect = {
   metadata: true,
   errorMessage: true,
   status: true,
+  indexedAt: true,
   createdAt: true,
   updatedAt: true,
 } as const;
