@@ -40,6 +40,7 @@
     "pdfjs-dist": "^6.2.108",
     "pg": "^8.23.0",
     "prisma": "^7.9.1",
+    "puppeteer": "^25.7.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.85.0",
