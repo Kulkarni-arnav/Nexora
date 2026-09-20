@@ -15,3 +15,21 @@ export function getLlmClient(): GoogleGenAI {
   }
   return new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 }
+
+export async function* generateStream(
+  client: ReturnType<typeof getLlmClient>,
+  contents: string[],
+  config: { temperature?: number; topP?: number } = {}
+) {
+  const response = await client.models.generateContentStream({
+    model: LLM_MODEL,
+    contents,
+    config,
+  });
+
+  for await (const chunk of response) {
+    if (chunk.text) {
+      yield chunk.text;
+    }
+  }
+}
