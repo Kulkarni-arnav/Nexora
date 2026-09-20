@@ -180,10 +180,16 @@ model Message {
   content         String
   metadata        Json?
   createdAt       DateTime     @default(now())
+  parentMessageId String?
 
   conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   user            User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   citations       Citation[]
+
+  /// Self-relation for conversation branching
+  /// parentMessageId links to a previous message in the same conversation
+  parentMessage   Message?     @relation("MessageBranch", fields: [parentMessageId], references: [id])
+  children          Message[]    @relation("MessageBranch")
 
   @@index([conversationId])
   @@index([userId])
