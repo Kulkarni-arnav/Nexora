@@ -57,3 +57,6 @@ docker-compose.override.yml
 .vscode/
 *.swp
 *.swo
+
+# local Prisma development database
+prisma/dev.db
