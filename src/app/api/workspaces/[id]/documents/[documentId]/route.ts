@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { requireWorkspaceMember, requireWorkspaceRole } from "@/server/auth";
 import { isAppError } from "@/server/validation/errors";
-import { deleteDocument, getDocument, serializeDocument } from "@/server/services/documents/document-service";
+import { prisma } from "@/server/db/client";
 import { z } from "zod";
+import { deleteDocument, getDocument, serializeDocument } from "@/server/services/documents/document-service";
 
 const workspaceIdSchema = z.string().uuid();
 const documentIdSchema = z.string().uuid();
@@ -12,6 +13,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; documentId: string }> }
 ) {
+  const { searchParams } = new URL(request.url);
+  const chunks = searchParams.get('chunks');
+
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -28,6 +32,23 @@ export async function GET(
 
     await requireWorkspaceMember(workspaceId, session.user.id);
 
+    if (chunks) {
+      // Return chunks for this document
+      const chunksList = await prisma.documentChunk.findMany({
+        where: { documentId },
+        orderBy: { chunkIndex: "asc" },
+        select: {
+          id: true,
+          chunkIndex: true,
+          content: true,
+          tokenCount: true,
+        },
+      });
+
+      return NextResponse.json({ chunks: chunksList });
+    }
+
+    // Return document details
     const document = await getDocument(workspaceId, documentId);
 
     return NextResponse.json({ document: serializeDocument(document) });
@@ -38,8 +59,8 @@ export async function GET(
         { status: error.statusCode }
       );
     }
-    console.error("Get document error:", error);
-    return NextResponse.json({ error: "Failed to get document" }, { status: 500 });
+    console.error("Get document/chunks error:", error);
+    return NextResponse.json({ error: "Failed to get document/chunks" }, { status: 500 });
   }
 }
 
