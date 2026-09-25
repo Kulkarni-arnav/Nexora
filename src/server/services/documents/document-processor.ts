@@ -62,19 +62,23 @@ export async function processDocument(
       Buffer.from(result.text, "utf-8")
     );
 
+    const indexResult = await indexDocument(workspaceId, documentId);
+
+    if (!indexResult.indexed) {
+      await failDocument(
+        workspaceId,
+        documentId,
+        indexResult.error || "Indexing failed"
+      );
+      return assertDocument(workspaceId, documentId);
+    }
+
     await completeDocument(
       workspaceId,
       documentId,
       contentKey(workspaceId, documentId),
       result.metadata
     );
-
-    const indexResult = await indexDocument(workspaceId, documentId);
-
-    if (!indexResult.indexed) {
-      await failDocument(workspaceId, documentId, indexResult.error || "Indexing failed");
-      return assertDocument(workspaceId, documentId);
-    }
 
     return assertDocument(workspaceId, documentId);
   } catch (error) {

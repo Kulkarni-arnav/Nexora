@@ -40,7 +40,7 @@ export async function POST(
     await requireWorkspaceRole(workspaceId, ["OWNER", "ADMIN", "MEMBER"], session.user.id);
 
     // Rate limiting scoped to user + workspace
-    const rateLimitKey = \`chat:\${session.user.id}:workspace:\${workspaceId}\`;
+    const rateLimitKey = `chat:${session.user.id}:workspace:${workspaceId}`;
     const rateLimitResult = await checkRateLimit(rateLimitKey, 30, 60);
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
@@ -67,8 +67,9 @@ export async function POST(
     const messageCreateData = {
       conversationId: conversationExist.id,
       userId: session!.user!.id,
-      role: "USER",
+      role: "USER" as const,
       content: userContent,
+      parentMessageId: body.parentMessageId ?? undefined,
     };
 
     // If parentMessageId is provided, validate it belongs to the same conversation

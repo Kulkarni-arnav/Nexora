@@ -1,60 +1,75 @@
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { getCurrentWorkspaceId, getUserWorkspaces } from "@/server/auth";
-import { AppSidebar } from "@/components/layout/app-sidebar";
-import { AppHeader } from "@/components/layout/app-header";
-import { Toaster } from "@/components/ui/toaster";
-import type { UserNav, WorkspaceInfo, WorkspaceNavItem } from "@/components/layout/types";
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 
-export default async function AppLayout({
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+export const metadata: Metadata = {
+  title: {
+    default: "NEXORA AI — Your knowledge. Searchable, understandable, intelligent.",
+    template: "%s | NEXORA AI",
+  },
+  description:
+    "NEXORA AI is a production-quality AI Knowledge Management & Research Assistant SaaS. Transform your documents into searchable, intelligent knowledge.",
+  keywords: [
+    "AI",
+    "knowledge management",
+    "research assistant",
+    "RAG",
+    "document search",
+    "vector search",
+  ],
+  authors: [{ name: "NEXORA AI Team" }],
+  creator: "NEXORA AI",
+  publisher: "NEXORA AI",
+  robots: "index, follow",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "NEXORA AI",
+    title: "NEXORA AI — Your knowledge. Searchable, understandable, intelligent.",
+    description:
+      "Transform your documents into searchable, intelligent knowledge with AI-powered research assistance.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NEXORA AI",
+    description:
+      "Your knowledge. Searchable, understandable, intelligent.",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "oklch(0.99 0 0)" },
+    { media: "(prefers-color-scheme: dark)", color: "oklch(0.12 0.02 260)" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
+export default function AppLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
-
-  const userId = session.user.id;
-  const workspaceId = await getCurrentWorkspaceId();
-  const memberships = await getUserWorkspaces(userId);
-
-  const workspaces: WorkspaceNavItem[] = memberships.map((m) => ({
-    id: m.workspace.id,
-    name: m.workspace.name,
-    slug: m.workspace.slug,
-    role: m.role,
-    isOwner: m.workspace.ownerId === userId,
-    memberCount: m.workspace._count.members,
-  }));
-
-  const current: WorkspaceInfo | null = workspaceId
-    ? workspaces.find((w) => w.id === workspaceId) ?? workspaces[0] ?? null
-    : workspaces[0] ?? null;
-
-  const user: UserNav = {
-    id: userId,
-    name: session.user.name ?? null,
-    email: session.user.email ?? "",
-    image: session.user.image ?? null,
-  };
-
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="min-h-screen bg-background">
-      <AppSidebar workspaces={workspaces} current={current} user={user} />
-      <div className="flex min-h-screen flex-col lg:pl-64">
-        <AppHeader
-          workspaceName={current?.name ?? null}
-          workspaces={workspaces}
-          current={current}
-          user={user}
-        />
-        <main className="w-full flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-          {children}
-        </main>
-      </div>
-      <Toaster />
+    <div className="min-h-screen bg-background p-4 md:p-8">
+      {children}
     </div>
   );
 }

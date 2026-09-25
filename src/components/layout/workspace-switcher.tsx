@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 import type { WorkspaceInfo, WorkspaceNavItem } from "./types";
 
 const roleLabels: Record<WorkspaceNavItem["role"], string> = {
@@ -73,12 +74,26 @@ export function WorkspaceSwitcher({
     }
   };
 
-  const handleSwitch = (workspace: WorkspaceNavItem) => {
+  const handleSwitch = async (workspace: WorkspaceNavItem) => {
     if (workspace.id === current.id) return;
-    toast({
-      title: "Workspace switching is coming soon",
-      description: "You are currently in " + current.name + ".",
-    });
+
+    try {
+      const response = await fetch(`/api/workspaces/${workspace.id}/switch`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to switch workspace");
+      }
+      toast({ title: "Workspace switched", variant: "success" });
+      window.location.reload();
+    } catch (error) {
+      toast({
+        title: error instanceof Error ? error.message : "Failed to switch workspace",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
