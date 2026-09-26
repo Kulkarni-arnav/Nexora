@@ -14,12 +14,12 @@ export async function POST(
     }
 
     const workspaceId = (await params)?.id as string;
-    
+
     // Verify workspace membership
     if (!workspaceId) {
       return NextResponse.json({ error: "Invalid workspace ID" }, { status: 400 });
     }
-    
+
     await requireWorkspaceMember(workspaceId, session.user.id);
 
     // Set the current workspace cookie
@@ -30,7 +30,7 @@ export async function POST(
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 30,
     });
-    
+
     return response;
   } catch (error) {
     const err = error as Error;
